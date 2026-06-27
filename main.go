@@ -8,6 +8,7 @@ import (
 	"spotsync-api/models"
 	"spotsync-api/repository"
 	"spotsync-api/service"
+	"spotsync-api/utils"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -24,6 +25,11 @@ func main() {
 	}
 
 	e := echo.New()
+
+	// Centralized Global Error Handler Registration
+	e.HTTPErrorHandler = utils.CustomHTTPErrorHandler
+
+	// Middlewares
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
