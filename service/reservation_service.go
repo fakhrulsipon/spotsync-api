@@ -7,7 +7,7 @@ import (
 )
 
 type ReservationService interface {
-	ReserveSpot(userID uint, req dto.CreateReservationRequest) (*dto.APIResponse, error)
+	ReserveSpot(userID uint, req dto.CreateReservationRequest) (*dto.ReservationResponse, error) // রিটার্ন টাইপ আপডেট করা হয়েছে
 	GetMyReservations(userID uint) ([]dto.MyReservationResponse, error)
 	CancelReservation(userID uint, role string, reservationID uint) error
 	GetAllReservations() (interface{}, error)
@@ -21,7 +21,7 @@ func NewReservationService(repo repository.ReservationRepository) ReservationSer
 	return &reservationService{resRepo: repo}
 }
 
-func (s *reservationService) ReserveSpot(userID uint, req dto.CreateReservationRequest) (*dto.APIResponse, error) {
+func (s *reservationService) ReserveSpot(userID uint, req dto.CreateReservationRequest) (*dto.ReservationResponse, error) {
 	res, err := s.resRepo.CreateAtomicReservation(userID, req.ZoneID, req.LicensePlate)
 	if err != nil {
 		if err.Error() == "zone_full" {
@@ -29,9 +29,16 @@ func (s *reservationService) ReserveSpot(userID uint, req dto.CreateReservationR
 		}
 		return nil, err
 	}
-	return &dto.APIResponse{
-		Success: true,
-		Data:    res,
+
+	// এখানে ডাটাবেজ মডেল থেকে DTO-তে ক্লিন ম্যাপিং করা হচ্ছে
+	return &dto.ReservationResponse{
+		ID:           res.ID,
+		UserID:       res.UserID,
+		ZoneID:       res.ZoneID,
+		LicensePlate: res.LicensePlate,
+		Status:       res.Status,
+		CreatedAt:    res.CreatedAt,
+		UpdatedAt:    res.UpdatedAt,
 	}, nil
 }
 

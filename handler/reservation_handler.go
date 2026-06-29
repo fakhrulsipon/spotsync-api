@@ -2,9 +2,9 @@ package handler
 
 import (
 	"net/http"
-	"strconv"
 	"spotsync-api/dto"
 	"spotsync-api/service"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -29,14 +29,19 @@ func (h *ReservationHandler) Create(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, dto.APIResponse{Success: false, Message: err.Error()})
 	}
 
-	res, err := h.resService.ReserveSpot(userID, req)
+	res, err := h.resService.ReserveSpot(userID, req) // এখানে এখন ফিল্টারড ডিটিও আসবে
 	if err != nil {
 		if err.Error() == "parking zone is full" {
 			return c.JSON(http.StatusConflict, dto.APIResponse{Success: false, Message: err.Error()})
 		}
 		return c.JSON(http.StatusBadRequest, dto.APIResponse{Success: false, Message: err.Error()})
 	}
-	return c.JSON(http.StatusCreated, dto.APIResponse{Success: true, Message: "Reservation confirmed successfully", Data: res.Data})
+
+	return c.JSON(http.StatusCreated, dto.APIResponse{
+		Success: true,
+		Message: "Reservation confirmed successfully",
+		Data:    res, // সরাসরি ম্যাপড ডাটা রেসপন্সে চলে যাবে
+	})
 }
 
 func (h *ReservationHandler) GetMy(c echo.Context) error {
@@ -61,7 +66,10 @@ func (h *ReservationHandler) Cancel(c echo.Context) error {
 		if err.Error() == "forbidden" {
 			return c.JSON(http.StatusForbidden, dto.APIResponse{Success: false, Message: "You cannot cancel someone else's reservation"})
 		}
-		return c.JSON(http.StatusInternalServerError, dto.APIResponse{Success: false, Message: err.Error()})
+		return c.JSON(http.StatusInternalServerError, dto.APIResponse{
+			Success: false,
+			Message: err.Error(),
+		})
 	}
 	return c.JSON(http.StatusOK, dto.APIResponse{Success: true, Message: "Reservation cancelled successfully"})
 }

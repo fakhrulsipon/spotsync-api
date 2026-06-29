@@ -54,6 +54,17 @@ type CreateReservationRequest struct {
 	LicensePlate string `json:"license_plate" validate:"required,max=15"`
 }
 
+// ⭐ এটি নতুন যোগ করা হয়েছে (To fix response format)
+type ReservationResponse struct {
+	ID           uint      `json:"id"`
+	UserID       uint      `json:"user_id"`
+	ZoneID       uint      `json:"zone_id"`
+	LicensePlate string    `json:"license_plate"`
+	Status       string    `json:"status"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
+}
+
 type MyReservationResponse struct {
 	ID           uint      `json:"id"`
 	LicensePlate string    `json:"license_plate"`
